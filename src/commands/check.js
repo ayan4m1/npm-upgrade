@@ -5,9 +5,11 @@ import {flow, map, partition} from 'lodash/fp';
 import open from 'open';
 import semver from 'semver';
 import detectIndent from 'detect-indent';
-import ncu from 'npm-check-updates';
 import shell from 'shelljs';
-import {colorizeDiff} from 'npm-check-updates/lib/version-util';
+import queryVersions from 'npm-check-updates/build/src/lib/queryVersions';
+import {colorizeDiff} from 'npm-check-updates/build/src/lib/version-util';
+import upgradeDependencies from 'npm-check-updates/build/src/lib/upgradeDependencies';
+import getCurrentDependencies from 'npm-check-updates/build/src/lib/getCurrentDependencies';
 
 import catchAsyncError from '../catchAsyncError';
 import {makeFilterFunction} from '../filterUtils';
@@ -22,6 +24,17 @@ import {askIgnoreFields} from './ignore';
 import Config from '../Config';
 
 const pkg = require('../../package.json');
+
+async function getVersionsForTarget(currentVersions, target, showProgress = false) {
+  return Object.fromEntries(
+    Object.entries(
+      await queryVersions(currentVersions, {
+        target,
+        json: showProgress
+      })
+    ).map(([packageName, {version}]) => [packageName, version])
+  );
+}
 
 function createUpdatedModulesTable(modules) {
   return createSimpleTable(
@@ -49,6 +62,10 @@ export function builder(yargs) {
 
 /* eslint complexity: "off" */
 export const handler = catchAsyncError(async opts => {
+  const {chalkInit} = await import('npm-check-updates/build/src/lib/chalk');
+
+  await chalkInit();
+
   const {filter} = opts;
   // Making function that will filter out deps by module name
   const filterModuleName = makeFilterFunction(filter);
@@ -84,9 +101,13 @@ export const handler = catchAsyncError(async opts => {
     .filter(({name}) => opts[name])
     .map(({ncuValue}) => ncuValue)
     .join(',');
-  const currentVersions = ncu.getCurrentDependencies(packageJson, {dep: ncuDepGroups});
-  const latestVersions = await ncu.queryVersions(currentVersions, {versionTarget: 'latest'});
-  let upgradedVersions = ncu.upgradeDependencies(currentVersions, latestVersions);
+  const currentVersions = getCurrentDependencies(packageJson, {
+    dep: ncuDepGroups
+  });
+  const latestVersions = await getVersionsForTarget(currentVersions, 'latest', true);
+  const stableVersions = await getVersionsForTarget(currentVersions, 'semver');
+
+  let upgradedVersions = upgradeDependencies(currentVersions, latestVersions);
 
   // Filtering modules that have to be updated
   upgradedVersions = _.pickBy(
@@ -152,6 +173,7 @@ export const handler = catchAsyncError(async opts => {
   while (modulesToUpdate.length && !isUpdateFinished) {
     const outdatedModule = modulesToUpdate.shift();
     const {name, from, to} = outdatedModule;
+    const stableTo = stableVersions[name];
     let {changelogUrl, homepage} = outdatedModule;
 
     // Adds new line
@@ -164,6 +186,10 @@ export const handler = catchAsyncError(async opts => {
       choices: _.compact([
         {name: 'Yes', value: true},
         {name: 'No', value: false},
+        {
+          name: `Use ${colorizeDiff(from, stableTo)} instead`,
+          value: 'stable'
+        },
         // Don't show this option if we couldn't find module's changelog url
         (changelogUrl !== null) &&
         {name: 'Show changelog', value: 'changelog'},
@@ -225,6 +251,15 @@ export const handler = catchAsyncError(async opts => {
 
       case 'finish':
         isUpdateFinished = true;
+        break;
+
+      case 'stable':
+        updatedModules.push({
+          ...outdatedModule,
+          to: stableTo
+        });
+        setModuleVersion(name, stableTo, packageJson);
+        delete config.ignore[name];
         break;
 
       case true:
