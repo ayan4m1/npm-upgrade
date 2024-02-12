@@ -1,13 +1,13 @@
 {
   "presets": [
-    ["@babel/preset-env", {
-      "targets": {
-        "node": "10.19"
+    [
+      "@babel/preset-env",
+      {
+        "targets": {
+          "node": "20"
+        }
       }
-    }]
+    ]
   ],
-  "plugins": [
-    "@babel/plugin-transform-runtime",
-    "lodash"
-  ]
+  "plugins": ["@babel/plugin-transform-runtime", "lodash"]
 }
