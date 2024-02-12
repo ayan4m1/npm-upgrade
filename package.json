@@ -1,6 +1,6 @@
 {
   "name": "@ayan4m1/npm-upgrade",
-  "version": "3.2.2",
+  "version": "3.2.3",
   "description": "Interactive CLI utility to easily update outdated NPM dependencies",
   "author": "Yuriy Grunin <grunin.ya@ya.ru>",
   "contributors": [
