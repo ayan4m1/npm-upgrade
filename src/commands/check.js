@@ -186,7 +186,7 @@ export const handler = catchAsyncError(async opts => {
       choices: _.compact([
         {name: 'Yes', value: true},
         {name: 'No', value: false},
-        (from !== stableTo) && {
+        (from.replace(/[\^~]/g, '') !== stableTo) && {
           name: `Use ${colorizeDiff(from.replace(/[\^~]/g, ''), stableTo)} instead`,
           value: 'stable'
         },
