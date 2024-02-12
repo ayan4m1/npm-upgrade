@@ -186,8 +186,8 @@ export const handler = catchAsyncError(async opts => {
       choices: _.compact([
         {name: 'Yes', value: true},
         {name: 'No', value: false},
-        {
-          name: `Use ${colorizeDiff(from, stableTo)} instead`,
+        (from !== stableTo) && {
+          name: `Use ${colorizeDiff(from.replace(/[\^~]/g, ''), stableTo)} instead`,
           value: 'stable'
         },
         // Don't show this option if we couldn't find module's changelog url
