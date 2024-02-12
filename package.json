@@ -20,7 +20,9 @@
     "url": "git+https://github.com/ayan4m1/npm-upgrade.git"
   },
   "main": "./lib/bin/cli.js",
-  "bin": "./lib/bin/cli.js",
+  "bin": {
+    "npm-upgrade": "lib/bin/cli.js"
+  },
   "scripts": {
     "prepare": "gulp build",
     "build": "gulp build",
