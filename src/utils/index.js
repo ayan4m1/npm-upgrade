@@ -52,3 +52,9 @@ export function catchAsyncError(asyncFn) {
 export async function askUser(question) {
   return (await prompt([{ ...question, name: 'answer' }])).answer;
 }
+
+export function sortObjectKeysAlphabetically(object) {
+  return Object.fromEntries(
+    Object.entries(object).sort(([a], [b]) => a.localeCompare(b))
+  );
+}

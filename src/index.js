@@ -18,6 +18,11 @@ program
   .command('changelog <packageName>', 'Show changelog for a package', {
     executableFile: 'changelog.js'
   })
+  .command(
+    'override <packageName> <changelogUrl>',
+    'Update local overrides database',
+    { executableFile: 'override.js' }
+  )
   .addCommand(
     new Command('ignore')
       .executableDir(commandDir)
