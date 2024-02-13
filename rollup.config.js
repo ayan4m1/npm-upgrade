@@ -1,8 +1,9 @@
 import json from '@rollup/plugin-json';
 import { babel } from '@rollup/plugin-babel';
-// import terser from '@rollup/plugin-terser';
+import terser from '@rollup/plugin-terser';
 import multiInput from 'rollup-plugin-multi-input';
-import autoExternal from 'rollup-plugin-auto-external';
+// eslint-disable-next-line import/no-unresolved
+import nodeExternals from 'rollup-plugin-node-externals';
 
 export default {
   input: './src/**/*.js',
@@ -11,10 +12,10 @@ export default {
     format: 'esm'
   },
   plugins: [
-    autoExternal(),
-    babel({ babelHelpers: 'runtime' }),
+    nodeExternals(),
+    babel({ babelHelpers: 'bundled' }),
     multiInput.default(),
-    json()
-    // terser()
+    json(),
+    terser()
   ]
 };

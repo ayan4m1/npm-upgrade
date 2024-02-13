@@ -1,11 +1,11 @@
 import semver from 'semver';
 import keys from 'lodash/keys.js';
 
-import askUser from './askUser.js';
-import { createSimpleTable } from './cliTable.js';
-import { strong, attention } from './cliStyles.js';
+import { askUser } from '../utils/index.js';
+import { createSimpleTable } from './table.js';
+import { strong, attention } from './colors.js';
 
-export function createIgnoredModulesTable(
+export function createIgnoredPackagesTable(
   ignoredModulesConfig,
   moduleNames = keys(ignoredModulesConfig)
 ) {

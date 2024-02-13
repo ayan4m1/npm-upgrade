@@ -70,7 +70,8 @@
     "lint-staged": "^15.2.2",
     "rollup": "^4.10.0",
     "rollup-plugin-auto-external": "^2.0.0",
-    "rollup-plugin-multi-input": "^1.4.1"
+    "rollup-plugin-multi-input": "^1.4.1",
+    "rollup-plugin-node-externals": "^7.0.1"
   },
   "files": [
     "lib",

@@ -1,10 +1,10 @@
-import _ from 'lodash';
 import fp from 'lodash/fp.js';
+import escapeRegExp from 'lodash/escapeRegExp.js';
 
 const { flow, split, compact, partition } = fp;
 
 export function globToRegexp(glob, flags) {
-  const regexp = glob.split(/\*+/).map(_.escapeRegExp).join('.*?');
+  const regexp = glob.split(/\*+/).map(escapeRegExp).join('.*?');
 
   return new RegExp(`^${regexp}$`, flags);
 }

@@ -2,10 +2,10 @@ import Bluebird from 'bluebird';
 import _ from 'lodash';
 import got from 'got';
 
-import { getModuleInfo } from './packageUtils.js';
-import { getRepositoryInfo } from './repositoryUtils.js';
+import { getModuleInfo } from './package.js';
+import { getRepositoryInfo } from './index.js';
 
-const pkg = await import('../package.json');
+const pkg = await import('../../package.json');
 
 const COMMON_CHANGELOG_FILES = [
   'CHANGELOG.md',
@@ -41,7 +41,8 @@ export async function findModuleChangelogUrl(
     changelogUrls = await fetchRemoteDb(remoteChangelogUrlsDbUrl);
   }
 
-  changelogUrls = changelogUrls || (await import('../db/changelogUrls.json'));
+  changelogUrls =
+    changelogUrls || (await import('../../db/changelogUrls.json'));
 
   if (changelogUrls[moduleName]) {
     return changelogUrls[moduleName];

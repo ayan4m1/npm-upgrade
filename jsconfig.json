@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "module": "commonjs",
+    "module": "esnext",
     "baseUrl": "./src"
   },
   "include": ["src/"]

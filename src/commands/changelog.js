@@ -1,18 +1,20 @@
 import open from 'open';
+import { program } from 'commander';
 
-import catchAsyncError from '../catchAsyncError.js';
-import { findModuleChangelogUrl } from '../changelogUtils.js';
-import { strong } from '../cliStyles.js';
+import { catchAsyncError } from '../utils/index.js';
+import { strong } from '../utils/colors.js';
+import { findModuleChangelogUrl } from '../utils/changelog.js';
 
-const pkg = await import('../../package.json');
+program.argument('<packageName>', 'Name of the package to search for').parse();
 
-catchAsyncError(async (opts) => {
-  const { moduleName } = opts;
+catchAsyncError(async () => {
+  const pkg = await import('../../package.json');
+  const [packageName] = program.args;
 
-  console.log(`Trying to find changelog URL for ${strong(moduleName)}...`);
+  console.log(`Trying to find changelog URL for ${strong(packageName)}...`);
   let changelogUrl;
   try {
-    changelogUrl = await findModuleChangelogUrl(moduleName);
+    changelogUrl = await findModuleChangelogUrl(packageName);
   } catch (err) {
     if (err.code === 'E404') {
       console.log("Couldn't find info about this module in npm registry");

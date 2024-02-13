@@ -4,6 +4,7 @@ import shell from 'shelljs';
 import semver from 'semver';
 import fp from 'lodash/fp.js';
 import { writeFileSync } from 'fs';
+import { program } from 'commander';
 import detectIndent from 'detect-indent';
 // eslint-disable-next-line import/default
 import queryVersionObj from 'npm-check-updates/build/src/lib/queryVersions.js';
@@ -11,8 +12,13 @@ import { colorizeDiff } from 'npm-check-updates/build/src/lib/version-util.js';
 import upgradeDependencies from 'npm-check-updates/build/src/lib/upgradeDependencies.js';
 import getCurrentDependencies from 'npm-check-updates/build/src/lib/getCurrentDependencies.js';
 
-import catchAsyncError from '../catchAsyncError.js';
-import { makeFilterFunction } from '../filterUtils.js';
+import Config from '../utils/config.js';
+import { askIgnoreFields } from '../utils/ignore.js';
+import { createSimpleTable } from '../utils/table.js';
+import { makeFilterFunction } from '../utils/filter.js';
+import { strong, success, attention } from '../utils/colors.js';
+import { catchAsyncError, askUser, toSentence } from '../utils/index.js';
+import { fetchRemoteDb, findModuleChangelogUrl } from '../utils/changelog.js';
 import {
   DEPS_GROUPS,
   loadGlobalPackages,
@@ -20,18 +26,12 @@ import {
   setModuleVersion,
   getModuleInfo,
   getModuleHomepage
-} from '../packageUtils.js';
-import { fetchRemoteDb, findModuleChangelogUrl } from '../changelogUtils.js';
-import { createSimpleTable } from '../cliTable.js';
-import { strong, success, attention } from '../cliStyles.js';
-import askUser from '../askUser.js';
-import { toSentence } from '../stringUtils.js';
-import { askIgnoreFields } from '../ignoreUtils.js';
-import Config from '../Config.js';
+} from '../utils/package.js';
 
-const { queryVersions } = queryVersionObj;
+program.argument('[filter]', 'Package name filter').parse();
+
 const { flow, map, partition } = fp;
-const pkg = await import('../../package.json');
+const { default: queryVersions } = queryVersionObj;
 
 function sortModules(modules) {
   const processedModules = new Set();
@@ -96,24 +96,16 @@ function createUpdatedModulesTable(modules) {
   );
 }
 
-export function builder(yargs) {
-  DEPS_GROUPS.forEach(({ name, field, flag }) =>
-    yargs.option(name, {
-      type: 'boolean',
-      alias: flag,
-      describe: `check only "${field}"`
-    })
-  );
-}
-
-catchAsyncError(async (opts) => {
+catchAsyncError(async () => {
+  const pkg = await import('../../package.json');
   const { chalkInit } = await import(
     'npm-check-updates/build/src/lib/chalk.js'
   );
 
   await chalkInit();
 
-  const { filter } = opts;
+  const opts = program.opts();
+  const [filter] = program.args;
   // Making function that will filter out deps by module name
   const filterModuleName = makeFilterFunction(filter);
 
@@ -155,7 +147,7 @@ catchAsyncError(async (opts) => {
   const ncuDepGroups = DEPS_GROUPS.filter(({ name }) => opts[name])
     .map(({ ncuValue }) => ncuValue)
     .join(',');
-  const currentVersions = getCurrentDependencies(packageJson, {
+  const currentVersions = getCurrentDependencies.default(packageJson, {
     dep: ncuDepGroups
   });
   const latestVersions = await getVersionsForTarget(
@@ -165,7 +157,10 @@ catchAsyncError(async (opts) => {
   );
   const stableVersions = await getVersionsForTarget(currentVersions, 'semver');
 
-  let upgradedVersions = upgradeDependencies(currentVersions, latestVersions);
+  let upgradedVersions = upgradeDependencies.default(
+    currentVersions,
+    latestVersions
+  );
 
   // Filtering modules that have to be updated
   upgradedVersions = _.pickBy(upgradedVersions, (newVersion, moduleName) =>

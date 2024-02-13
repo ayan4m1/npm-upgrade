@@ -1,9 +1,10 @@
-import { resolve } from 'path';
-import { writeFileSync } from 'fs';
 import del from 'del';
 import _ from 'lodash';
+import { resolve } from 'path';
+import { writeFileSync } from 'fs';
 import detectIndent from 'detect-indent';
-import { loadPackageJson } from './packageUtils.js';
+
+import { loadPackageJson } from './package.js';
 
 const PROJECT_CONFIG_FILENAME = '.npm-upgrade.json';
 
