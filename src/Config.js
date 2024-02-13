@@ -1,9 +1,9 @@
-import {resolve} from 'path';
-import {writeFileSync} from 'fs';
+import { resolve } from 'path';
+import { writeFileSync } from 'fs';
 import del from 'del';
 import _ from 'lodash';
 import detectIndent from 'detect-indent';
-import {loadPackageJson} from './packageUtils';
+import { loadPackageJson } from './packageUtils.js';
 
 const PROJECT_CONFIG_FILENAME = '.npm-upgrade.json';
 
@@ -13,15 +13,11 @@ const read = Symbol('read');
 const getData = Symbol('getData');
 
 export default class Config {
-
   constructor(opts) {
-    const {projectRoot} = opts || {};
+    const { projectRoot } = opts || {};
     this[path] = resolve(projectRoot || process.cwd(), PROJECT_CONFIG_FILENAME);
     this[storedData] = this[read]();
-    _.assign(
-      this,
-      _.cloneDeep(this[storedData])
-    );
+    _.assign(this, _.cloneDeep(this[storedData]));
   }
 
   save() {
@@ -33,13 +29,10 @@ export default class Config {
       if (_.isEmpty(data)) {
         this.remove();
       } else {
-        const {source: packageSource} = loadPackageJson();
-        const {indent} = detectIndent(packageSource);
+        const { source: packageSource } = loadPackageJson();
+        const { indent } = detectIndent(packageSource);
 
-        writeFileSync(
-          this[path],
-          JSON.stringify(data, null, indent)
-        );
+        writeFileSync(this[path], JSON.stringify(data, null, indent));
       }
     } catch (err) {
       err.message = `Unable to update npm-upgrade config file: ${err.message}`;
@@ -60,10 +53,9 @@ export default class Config {
   }
 
   [getData]() {
-    const data = {...this};
+    const data = { ...this };
     return cleanDeep(data);
   }
-
 }
 
 function cleanDeep(obj) {

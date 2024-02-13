@@ -1,15 +1,17 @@
-import {parse as parseUrl} from 'url';
+import { parse as parseUrl } from 'url';
 
 import _ from 'lodash';
 
 const KNOWN_REPOSITORIES = {
-  'github.com': parsedRepositoryUrl => {
-    const repositoryId = /^(.+?\/.+?)(?:\/|\.git$|$)/.exec(parsedRepositoryUrl.pathname.slice(1))[1];
+  'github.com': (parsedRepositoryUrl) => {
+    const repositoryId = /^(.+?\/.+?)(?:\/|\.git$|$)/.exec(
+      parsedRepositoryUrl.pathname.slice(1)
+    )[1];
     const rootUrl = `https://github.com/${repositoryId}`;
 
     return {
       repositoryId,
-      fileUrlBuilder: filename => `${rootUrl}/blob/master/${filename}`,
+      fileUrlBuilder: (filename) => `${rootUrl}/blob/master/${filename}`,
       releasesPageUrl: `${rootUrl}/releases`
     };
   }
@@ -17,7 +19,9 @@ const KNOWN_REPOSITORIES = {
 
 export function getRepositoryInfo(repositoryUrl) {
   const parsedUrl = parseUrl(repositoryUrl);
-  const {hostname} = parsedUrl;
+  const { hostname } = parsedUrl;
 
-  return _.has(KNOWN_REPOSITORIES, hostname) ? KNOWN_REPOSITORIES[hostname](parsedUrl) : null;
+  return _.has(KNOWN_REPOSITORIES, hostname)
+    ? KNOWN_REPOSITORIES[hostname](parsedUrl)
+    : null;
 }

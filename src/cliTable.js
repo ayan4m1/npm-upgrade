@@ -8,30 +8,28 @@ const COL_ALIGNS_MAP = {
 
 export function createSimpleTable(rows, opts = {}) {
   if (opts.colAligns) {
-    opts.colAligns = opts.colAligns
-      .split('')
-      .map(val => COL_ALIGNS_MAP[val]);
+    opts.colAligns = opts.colAligns.split('').map((val) => COL_ALIGNS_MAP[val]);
   }
 
   const table = new Table({
-    style: {'padding-left': 2},
+    style: { 'padding-left': 2 },
     colAligns: ['left', 'right', 'right', 'right', 'middle'],
     chars: {
-      'top': '',
+      top: '',
       'top-mid': '',
       'top-left': '',
       'top-right': '',
-      'bottom': '',
+      bottom: '',
       'bottom-mid': '',
       'bottom-left': '',
       'bottom-right': '',
-      'left': '',
+      left: '',
       'left-mid': '',
-      'mid': '',
+      mid: '',
       'mid-mid': '',
-      'right': '',
+      right: '',
       'right-mid': '',
-      'middle': ''
+      middle: ''
     },
     ...opts
   });

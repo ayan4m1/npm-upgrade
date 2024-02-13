@@ -1,4 +1,6 @@
-import {white, green, yellow} from 'chalk';
+import chalk from 'chalk';
+
+const { white, green, yellow } = chalk;
 
 export const strong = white.bold;
 export const success = green.bold;

@@ -19,15 +19,16 @@
     "type": "git",
     "url": "git+https://github.com/ayan4m1/npm-upgrade.git"
   },
-  "main": "./lib/bin/cli.js",
+  "type": "module",
+  "module": "./lib/bin/index.js",
   "bin": {
-    "npm-upgrade": "lib/bin/cli.js"
+    "npm-upgrade": "lib/bin/index.js"
   },
   "scripts": {
-    "prepare": "gulp build",
-    "build": "gulp build",
-    "dev": "gulp watch",
-    "lint": "eslint ."
+    "build": "rollup -c",
+    "dev": "rollup -c -w",
+    "lint": "eslint ./src",
+    "prepare": "husky"
   },
   "engines": {
     "node": ">=16"
@@ -38,6 +39,7 @@
     "bluebird": "^3.7.2",
     "chalk": "^4.1.0",
     "cli-table": "^0.3.5",
+    "commander": "^12.0.0",
     "del": "^6.0.0",
     "detect-indent": "^6.0.0",
     "got": "^11.8.1",
@@ -48,28 +50,32 @@
     "open": "^7.4.2",
     "pacote": "^11.2.7",
     "semver": "^7.6.0",
-    "shelljs": "^0.8.5",
-    "yargs": "^16.2.0"
+    "shelljs": "^0.8.5"
   },
   "devDependencies": {
     "@babel/core": "^7.23.9",
+    "@babel/eslint-parser": "^7.23.10",
     "@babel/plugin-transform-runtime": "^7.23.9",
     "@babel/preset-env": "^7.23.9",
-    "babel-eslint": "^10.1.0",
+    "@rollup/plugin-babel": "^6.0.4",
+    "@rollup/plugin-json": "^6.1.0",
+    "@rollup/plugin-terser": "^0.4.4",
     "babel-plugin-lodash": "^3.3.4",
-    "eslint": "^5.16.0",
-    "eslint-config-th0r": "^2.0.0",
-    "gulp": "^4.0.2",
-    "gulp-babel": "^8.0.0"
+    "eslint": "^8.56.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-import-resolver-node": "^0.3.9",
+    "eslint-plugin-import": "^2.29.1",
+    "eslint-plugin-prettier": "^5.1.3",
+    "husky": "^9.0.10",
+    "lint-staged": "^15.2.2",
+    "rollup": "^4.10.0",
+    "rollup-plugin-auto-external": "^2.0.0",
+    "rollup-plugin-multi-input": "^1.4.1"
   },
   "files": [
     "lib",
-    "src",
     "db"
   ],
-  "directories": {
-    "lib": "./lib"
-  },
   "keywords": [
     "npm",
     "update",

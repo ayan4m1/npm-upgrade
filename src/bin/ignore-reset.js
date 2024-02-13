@@ -1,16 +1,13 @@
 import _ from 'lodash';
 
-import catchAsyncError from '../../catchAsyncError';
-import askUser from '../../askUser';
-import {success, strong, attention} from '../../cliStyles';
-import {createIgnoredModulesTable} from '../ignore';
-import Config from '../../Config';
+import catchAsyncError from '../catchAsyncError.js';
+import askUser from '../askUser.js';
+import { success, strong, attention } from '../cliStyles.js';
+import { createIgnoredModulesTable } from '../ignoreUtils.js';
+import Config from '../Config.js';
 
-export const command = 'reset [modules...]';
-export const describe = 'Reset ignored modules';
-
-export const handler = catchAsyncError(async (opts) => {
-  let {modules: modulesToReset} = opts;
+catchAsyncError(async (opts) => {
+  let { modules: modulesToReset } = opts;
   let invalidModules = [];
   const config = new Config();
   const ignoredModules = _.keys(config.ignore);
@@ -20,14 +17,17 @@ export const handler = catchAsyncError(async (opts) => {
   );
 
   if (modulesToReset.length) {
-    [modulesToReset, invalidModules] = _.partition(modulesToReset, moduleName =>
-      _.includes(ignoredModules, moduleName)
+    [modulesToReset, invalidModules] = _.partition(
+      modulesToReset,
+      (moduleName) => _.includes(ignoredModules, moduleName)
     );
 
     if (invalidModules.length) {
-      console.log(attention(
-        `These modules are not in the ignored list: ${strong(invalidModules.join(', '))}\n`
-      ));
+      console.log(
+        attention(
+          `These modules are not in the ignored list: ${strong(invalidModules.join(', '))}\n`
+        )
+      );
     }
   }
 
@@ -61,4 +61,4 @@ export const handler = catchAsyncError(async (opts) => {
   config.save();
 
   console.log(success('\nDone!'));
-});
+})();

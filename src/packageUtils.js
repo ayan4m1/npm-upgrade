@@ -1,5 +1,5 @@
-import {resolve} from 'path';
-import {readFileSync} from 'fs';
+import { resolve } from 'path';
+import { readFileSync } from 'fs';
 import libnpmconfig from 'libnpmconfig';
 import pacote from 'pacote';
 import shell from 'shelljs';
@@ -7,12 +7,23 @@ import shell from 'shelljs';
 import _ from 'lodash';
 
 export const DEPS_GROUPS = [
-  {name: 'global', field: 'dependencies', flag: 'g', ncuValue: 'prod'},
-  {name: 'production', field: 'dependencies', flag: 'p', ncuValue: 'prod'},
-  {name: 'optional', field: 'optionalDependencies', flag: 'o', ncuValue: 'optional'},
-  {name: 'development', field: 'devDependencies', flag: 'd', ncuValue: 'dev'},
-  {name: 'peer', field: 'peerDependencies', flag: 'r', ncuValue: 'peer'},
-  {name: 'bundled', field: 'bundledDependencies', altField: 'bundleDependencies', flag: 'b', ncuValue: 'bundle'}
+  { name: 'global', field: 'dependencies', flag: 'g', ncuValue: 'prod' },
+  { name: 'production', field: 'dependencies', flag: 'p', ncuValue: 'prod' },
+  {
+    name: 'optional',
+    field: 'optionalDependencies',
+    flag: 'o',
+    ncuValue: 'optional'
+  },
+  { name: 'development', field: 'devDependencies', flag: 'd', ncuValue: 'dev' },
+  { name: 'peer', field: 'peerDependencies', flag: 'r', ncuValue: 'peer' },
+  {
+    name: 'bundled',
+    field: 'bundledDependencies',
+    altField: 'bundleDependencies',
+    flag: 'b',
+    ncuValue: 'bundle'
+  }
 ];
 
 const getNpmConfig = _.memoize(() => {
@@ -21,8 +32,9 @@ const getNpmConfig = _.memoize(() => {
   libnpmconfig.read().forEach((value, key) => {
     if (typeof value === 'string') {
       // Replacing env ${VARS} in strings with the `process.env` values
-      config[key] = value.replace(/\$\{(.+?)\}/gu, (_, envVar) =>
-        process.env[envVar]
+      config[key] = value.replace(
+        /\$\{(.+?)\}/gu,
+        (_, envVar) => process.env[envVar]
       );
     } else {
       config[key] = value;
@@ -33,16 +45,20 @@ const getNpmConfig = _.memoize(() => {
 });
 
 export function loadGlobalPackages() {
-  const res = shell.exec('npm ls -g --depth 0 --json', {silent: true});
-  if (res.code !== 0) {throw new Error(`Could not determine global packages: ${res.stderr}`)}
+  const res = shell.exec('npm ls -g --depth 0 --json', { silent: true });
+  if (res.code !== 0) {
+    throw new Error(`Could not determine global packages: ${res.stderr}`);
+  }
 
   try {
-    const {dependencies} = JSON.parse(res);
-    const content = {dependencies};
+    const { dependencies } = JSON.parse(res);
+    const content = { dependencies };
 
-    for (const [pkg, {version}] of Object.entries(dependencies)) {content.dependencies[pkg] = version}
+    for (const [pkg, { version }] of Object.entries(dependencies)) {
+      content.dependencies[pkg] = version;
+    }
 
-    return {content};
+    return { content };
   } catch (err) {
     console.error(`Error parsing global packages: ${err.message}`);
     process.exit(1);
@@ -62,11 +78,11 @@ export function loadPackageJson() {
     process.exit(1);
   }
 
-  return {path: packageFile, content: packageJson, source: packageSource};
+  return { path: packageFile, content: packageJson, source: packageSource };
 }
 
 export function findModuleDepsGroup(moduleName, packageJson) {
-  for (const {field, altField} of DEPS_GROUPS) {
+  for (const { field, altField } of DEPS_GROUPS) {
     let modules = packageJson[field];
 
     if (!modules && altField) {
@@ -102,7 +118,7 @@ export function getModuleHomepage(packageJson) {
   return packageJson.homepage || packageJson.url || null;
 }
 
-export const getModuleInfo = _.memoize(async moduleName =>
+export const getModuleInfo = _.memoize(async (moduleName) =>
   pacote.manifest(moduleName, {
     ...getNpmConfig(),
     fullMetadata: true
