@@ -1,13 +1,12 @@
 import open from 'open';
 import { program } from 'commander';
 
-import { catchAsyncError } from '../utils/index.js';
 import { strong } from '../utils/colors.js';
 import { findModuleChangelogUrl } from '../utils/changelog.js';
 
 program.argument('<packageName>', 'Name of the package to search for').parse();
 
-catchAsyncError(async () => {
+try {
   const pkg = await import('../../package.json');
   const [packageName] = program.args;
 
@@ -18,7 +17,7 @@ catchAsyncError(async () => {
   } catch (err) {
     if (err.code === 'E404') {
       console.log("Couldn't find info about this module in npm registry");
-      return;
+      process.exit(404);
     }
   }
 
@@ -32,4 +31,7 @@ catchAsyncError(async () => {
         'Thanks a lot!'
     );
   }
-})();
+} catch (error) {
+  console.error(error);
+  process.exit(1);
+}

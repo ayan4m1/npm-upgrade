@@ -17,7 +17,7 @@ import { askIgnoreFields } from '../utils/ignore.js';
 import { createSimpleTable } from '../utils/table.js';
 import { makeFilterFunction } from '../utils/filter.js';
 import { strong, success, attention } from '../utils/colors.js';
-import { catchAsyncError, askUser, toSentence } from '../utils/index.js';
+import { askUser, toSentence } from '../utils/index.js';
 import { fetchRemoteDb, findModuleChangelogUrl } from '../utils/changelog.js';
 import {
   DEPS_GROUPS,
@@ -96,7 +96,7 @@ function createUpdatedModulesTable(modules) {
   );
 }
 
-catchAsyncError(async () => {
+try {
   const pkg = await import('../../package.json');
   const { chalkInit } = await import(
     'npm-check-updates/build/src/lib/chalk.js'
@@ -168,7 +168,8 @@ catchAsyncError(async () => {
   );
 
   if (_.isEmpty(upgradedVersions)) {
-    return console.log(success('All dependencies are up-to-date!'));
+    console.log(success('All dependencies are up-to-date!'));
+    process.exit(0);
   }
 
   // Getting the list of ignored modules
@@ -343,7 +344,7 @@ catchAsyncError(async () => {
 
   if (!updatedModules.length) {
     console.log('Nothing to update');
-    return;
+    process.exit(0);
   }
 
   // Showing the list of modules that are going to be updated
@@ -360,16 +361,15 @@ catchAsyncError(async () => {
       default: true
     });
 
-    if (!shouldUpdateGlobalPackages) {
-      return;
+    if (shouldUpdateGlobalPackages) {
+      console.log(
+        `Automatically upgrading ${updatedModules.length} module${updatedModules.length !== 1 ? 's' : ''}...`
+      );
+      shell.exec(
+        `npm install --global ${updatedModules.map(({ name, to }) => `${name}@${to}`).join(' ')}`
+      );
+      process.exit(0);
     }
-
-    console.log(
-      `Automatically upgrading ${updatedModules.length} module${updatedModules.length !== 1 ? 's' : ''}...`
-    );
-    return shell.exec(
-      `npm install --global ${updatedModules.map(({ name, to }) => `${name}@${to}`).join(' ')}`
-    );
   }
 
   const shouldUpdatePackageFile = await askUser({
@@ -387,4 +387,7 @@ catchAsyncError(async () => {
       `${JSON.stringify(packageJson, null, indent)}\n`
     );
   }
-})();
+} catch (error) {
+  console.error(error);
+  process.exit(1);
+}

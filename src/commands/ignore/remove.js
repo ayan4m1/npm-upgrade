@@ -2,13 +2,13 @@ import _ from 'lodash';
 import { program } from 'commander';
 
 import Config from '../../utils/config.js';
-import { catchAsyncError, askUser } from '../../utils/index.js';
+import { askUser } from '../../utils/index.js';
 import { success, strong, attention } from '../../utils/colors.js';
 import { createIgnoredPackagesTable } from '../../utils/ignore.js';
 
 program.argument('[packages...]', 'Names of packages to stop ignoring').parse();
 
-catchAsyncError(async () => {
+try {
   let packagesToRemove = program.args;
   let invalidPackages = [];
   const config = new Config();
@@ -44,7 +44,8 @@ catchAsyncError(async () => {
   }
 
   if (!packagesToRemove.length) {
-    return console.log(attention('Nothing to reset'));
+    console.log(attention('Nothing to reset'));
+    process.exit(0);
   }
 
   console.log(
@@ -57,10 +58,13 @@ catchAsyncError(async () => {
     default: false
   });
 
-  if (!confirm) return;
+  if (confirm) {
+    config.ignore = _.omit(config.ignore, packagesToRemove);
+    config.save();
 
-  config.ignore = _.omit(config.ignore, packagesToRemove);
-  config.save();
-
-  console.log(success('\nDone!'));
-})();
+    console.log(success('\nDone!'));
+  }
+} catch (error) {
+  console.error(error);
+  process.exit(1);
+}

@@ -3,7 +3,7 @@ import { program } from 'commander';
 import { Separator } from 'inquirer';
 
 import Config from '../../utils/config.js';
-import { catchAsyncError, askUser } from '../../utils/index.js';
+import { askUser } from '../../utils/index.js';
 import { strong, success, attention } from '../../utils/colors.js';
 import {
   createIgnoredPackagesTable,
@@ -34,7 +34,7 @@ function makePackageIgnoreList(ignoredPackagesObj) {
   });
 }
 
-catchAsyncError(async () => {
+try {
   let { package: packageName } = program.opts();
   const config = new Config();
 
@@ -79,4 +79,7 @@ catchAsyncError(async () => {
       type: 'confirm'
     });
   } while (ignoreMore);
-})();
+} catch (error) {
+  console.error(error);
+  process.exit(1);
+}

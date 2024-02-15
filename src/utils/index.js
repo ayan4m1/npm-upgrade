@@ -40,15 +40,6 @@ export function getRepositoryInfo(repositoryUrl) {
   return null;
 }
 
-export function catchAsyncError(asyncFn) {
-  return function () {
-    return asyncFn.apply(this, arguments).catch((err) => {
-      console.error(err);
-      process.exit(1);
-    });
-  };
-}
-
 export async function askUser(question) {
   return (await prompt([{ ...question, name: 'answer' }])).answer;
 }
