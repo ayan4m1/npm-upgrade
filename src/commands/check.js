@@ -32,6 +32,7 @@ import {
 
 program.argument('[filter]', 'Package name filter').parse();
 
+// destructuring required here because libs are commonjs
 const { flow, map, partition } = fp;
 const { default: queryVersions } = queryVersionObj;
 

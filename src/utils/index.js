@@ -1,5 +1,6 @@
 import inquirer from 'inquirer';
 
+// destructuring required here because inquirer is commonjs
 const { prompt } = inquirer;
 
 export function toSentence(items) {

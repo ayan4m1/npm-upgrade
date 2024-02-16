@@ -1,6 +1,7 @@
 import fp from 'lodash/fp.js';
 import escapeRegExp from 'lodash/escapeRegExp.js';
 
+// destructuring required here because inquirer is commonjs
 const { flow, split, compact, partition } = fp;
 
 export function globToRegexp(glob, flags) {
