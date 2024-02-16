@@ -20,7 +20,7 @@ import { createSimpleTable } from '../utils/table.js';
 import { makeFilterFunction } from '../utils/filter.js';
 import { strong, success, attention } from '../utils/colors.js';
 import { askUser, toSentence } from '../utils/index.js';
-import { fetchRemoteDb, findModuleChangelogUrl } from '../utils/changelog.js';
+import { fetchRemoteDb, openAndFindChangelog } from '../utils/changelog.js';
 import {
   DEPS_GROUPS,
   loadGlobalPackages,
@@ -100,7 +100,6 @@ function createUpdatedModulesTable(modules) {
 }
 
 try {
-  const pkg = await import('../../package.json');
   const { chalkInit } = await import(
     'npm-check-updates/build/src/lib/chalk.js'
   );
@@ -278,20 +277,11 @@ try {
         modulesToUpdate.unshift(outdatedModule);
 
         if (changelogUrl === undefined) {
-          console.log('Trying to find changelog URL...');
-          changelogUrl = outdatedModule.changelogUrl =
-            await findModuleChangelogUrl(name);
-        }
+          const newUrl = await openAndFindChangelog(name);
 
-        if (changelogUrl) {
-          console.log(`Opening ${strong(changelogUrl)}...`);
-          open(changelogUrl);
-        } else {
-          console.log(
-            `Sorry, we haven't found any changelog URL for ${strong(name)} module.\n` +
-              `It would be great if you could fill an issue about this here: ${strong(pkg.bugs.url)}\n` +
-              'Thanks a lot!'
-          );
+          if (newUrl) {
+            changelogUrl = outdatedModule.changelogUrl = newUrl;
+          }
         }
         break;
 

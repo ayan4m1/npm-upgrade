@@ -1,6 +1,8 @@
+import open from 'open';
 // eslint-disable-next-line import/no-unresolved
 import { got } from 'got';
 
+import { strong } from './colors.js';
 import { getModuleInfo } from './package.js';
 import { getRepositoryInfo } from './index.js';
 
@@ -41,6 +43,7 @@ export async function findModuleChangelogUrl(
     changelogUrls = await fetchRemoteDb(remoteChangelogUrlsDbUrl);
   }
 
+  // todo: fix this
   changelogUrls =
     changelogUrls || (await import('../../db/changelogUrls.json'));
 
@@ -101,3 +104,38 @@ export async function findModuleChangelogUrl(
 
   return null;
 }
+
+export const openAndFindChangelog = async (packageName) => {
+  console.log(`Trying to find changelog URL for ${strong(packageName)}...`);
+  try {
+    const changelogUrl = await findModuleChangelogUrl(packageName);
+
+    if (!changelogUrl) {
+      console.log('No URL found, giving up!');
+      process.exit(1);
+    }
+
+    console.log(`Opening ${strong(changelogUrl)}...`);
+    try {
+      open(changelogUrl);
+
+      return changelogUrl;
+    } catch (error) {
+      console.error(error);
+      process.exit(1);
+    }
+  } catch (err) {
+    if (err.code === 'E404') {
+      console.log("Couldn't find info about this module in npm registry");
+      process.exit(404);
+    } else {
+      console.log(
+        `Sorry, we haven't found any changelog URL for this module.
+        It would be great if you could fill an issue about this here: ${strong(pkg.bugs.url)}
+        Thanks a lot!`
+      );
+    }
+  }
+
+  return null;
+};
