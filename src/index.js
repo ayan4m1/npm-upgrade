@@ -21,7 +21,9 @@ program
   .command(
     'override <packageName> <changelogUrl>',
     'Update local overrides database',
-    { executableFile: 'override.js' }
+    {
+      executableFile: 'override.js'
+    }
   )
   .addCommand(
     new Command('ignore')
