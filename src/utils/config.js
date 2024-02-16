@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import { resolve } from 'path';
-import { writeFileSync, unlinkSync } from 'fs';
+import { writeFileSync, unlinkSync, existsSync } from 'fs';
 import detectIndent from 'detect-indent';
 
 import { loadPackageJson } from './package.js';
@@ -41,7 +41,13 @@ export default class Config {
   }
 
   remove() {
-    return unlinkSync(this[path]);
+    try {
+      if (existsSync(this[path])) {
+        unlinkSync(this[path]);
+      }
+    } catch (err) {
+      console.error(err);
+    }
   }
 
   [read]() {

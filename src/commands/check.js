@@ -1,7 +1,9 @@
 import _ from 'lodash';
 import open from 'open';
 import shell from 'shelljs';
-import semver from 'semver';
+import semverGt from 'semver/functions/gt.js';
+import semverNeq from 'semver/functions/neq.js';
+import semverSatisfies from 'semver/functions/satisfies.js';
 import fp from 'lodash/fp.js';
 import { writeFileSync } from 'fs';
 import { program } from 'commander';
@@ -186,7 +188,7 @@ try {
     partition(
       (module) =>
         _.has(config.ignore, module.name) &&
-        semver.satisfies(
+        semverSatisfies(
           latestVersions[module.name],
           config.ignore[module.name].versions
         )
@@ -233,11 +235,17 @@ try {
   while (modulesToUpdate.length && !isUpdateFinished) {
     const outdatedModule = modulesToUpdate.shift();
     const { name, from, to } = outdatedModule;
-    const stableTo = stableVersions[name];
     let { changelogUrl, homepage } = outdatedModule;
+
+    const currentVersion = from.replace(/[\^~]/g, '');
+    const stableVersion = stableVersions[name];
+    const latestVersion = to.replace(/[\^~]/g, '');
 
     // Adds new line
     console.log('');
+
+    const showChangelog = changelogUrl !== null;
+    const showHomepage = !showChangelog && homepage !== null;
 
     const answer = await askUser({
       type: 'list',
@@ -247,15 +255,15 @@ try {
       choices: _.compact([
         { name: 'Yes', value: true },
         { name: 'No', value: false },
-        from.replace(/[\^~]/g, '') !== stableTo && {
-          name: `Use ${colorizeDiff(from.replace(/[\^~]/g, ''), stableTo)} instead`,
-          value: 'stable'
-        },
+        semverGt(stableVersion, currentVersion) &&
+          semverNeq(stableVersion, latestVersion) && {
+            name: `Use ${colorizeDiff(currentVersion, stableVersion)} instead`,
+            value: 'stable'
+          },
         // Don't show this option if we couldn't find module's changelog url
-        changelogUrl !== null && { name: 'Show changelog', value: 'changelog' },
+        showChangelog && { name: 'Show changelog', value: 'changelog' },
         // Show this if we haven't found changelog
-        changelogUrl === null &&
-          homepage !== null && { name: 'Open homepage', value: 'homepage' },
+        showHomepage && { name: 'Open homepage', value: 'homepage' },
         { name: 'Ignore', value: 'ignore' },
         { name: 'Finish update process', value: 'finish' }
       ]),
@@ -322,9 +330,9 @@ try {
       case 'stable':
         updatedModules.push({
           ...outdatedModule,
-          to: stableTo
+          to: stableVersion
         });
-        setModuleVersion(name, stableTo, packageJson);
+        setModuleVersion(name, stableVersion, packageJson);
         delete config.ignore[name];
         break;
 

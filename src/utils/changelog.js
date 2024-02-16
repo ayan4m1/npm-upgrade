@@ -1,5 +1,5 @@
-import _ from 'lodash';
-import got from 'got';
+// eslint-disable-next-line import/no-unresolved
+import { got } from 'got';
 
 import { getModuleInfo } from './package.js';
 import { getRepositoryInfo } from './index.js';
@@ -18,17 +18,18 @@ const CURRENT_REPOSITORY_ID = getRepositoryInfo(
 ).repositoryId;
 const DEFAULT_REMOTE_CHANGELOGS_DB_URL = `https://raw.githubusercontent.com/${CURRENT_REPOSITORY_ID}/master/db/changelogUrls.json`;
 
-export const fetchRemoteDb = _.memoize(
-  async (url = DEFAULT_REMOTE_CHANGELOGS_DB_URL) => {
-    try {
-      const response = await got(url, { json: true });
+export const fetchRemoteDb = async (url = DEFAULT_REMOTE_CHANGELOGS_DB_URL) => {
+  try {
+    const response = await got(url);
+    const result = await response.json();
 
-      return response.body;
-    } catch (err) {
-      return null;
-    }
+    console.dir(result);
+
+    return result;
+  } catch (err) {
+    return null;
   }
-);
+};
 
 export async function findModuleChangelogUrl(
   moduleName,
@@ -59,38 +60,41 @@ export async function findModuleChangelogUrl(
     const { fileUrlBuilder, releasesPageUrl } =
       getRepositoryInfo(repository.url) || {};
 
+    console.dir(fileUrlBuilder);
+
     if (fileUrlBuilder) {
-      const possibleChangelogUrls = _.map(
-        COMMON_CHANGELOG_FILES,
-        fileUrlBuilder
-      );
+      const possibleChangelogUrls = COMMON_CHANGELOG_FILES.map(fileUrlBuilder);
 
       try {
-        const rawResults = await Promise.allSettled(
-          possibleChangelogUrls.map((url) => got(url))
+        const [url] = (
+          await Promise.allSettled(
+            possibleChangelogUrls.map((url) =>
+              got(url)
+                .json()
+                .then(() => url)
+            )
+          )
         )
           .filter((result) => result.status === 'fulfilled')
-          .map((result) => result.value.json);
-        const rawResponses = await Promise.allSettled(rawResults);
-        const url = rawResponses.find(
-          (responseResult) => responseResult.status === 'fulfilled'
-        );
+          .map((result) => result.value);
 
-        return url;
+        if (url) {
+          return url;
+        }
       } catch (err) {
         console.error(err);
-        process.exit(1);
       }
     }
 
     if (releasesPageUrl) {
       try {
         // Checking `releasesUrl`...
-        await got(releasesPageUrl);
+        await got(releasesPageUrl).text();
         // `releasesUrl` is fine
         return releasesPageUrl;
       } catch (err) {
         // `releasesPageUrl` is broken
+        console.error(err);
       }
     }
   }
