@@ -1,10 +1,9 @@
+import _ from 'lodash';
+import pacote from 'pacote';
+import shell from 'shelljs';
 import { resolve } from 'path';
 import { readFileSync } from 'fs';
 import libnpmconfig from 'libnpmconfig';
-import pacote from 'pacote';
-import shell from 'shelljs';
-
-import _ from 'lodash';
 
 export const DEPS_GROUPS = [
   { name: 'global', field: 'dependencies', flag: 'g', ncuValue: 'prod' },
@@ -114,11 +113,9 @@ export function setModuleVersion(moduleName, newVersion, packageJson) {
   }
 }
 
-export function getModuleHomepage(packageJson) {
-  return packageJson.homepage || packageJson.url || null;
-}
+export const getModuleHomepage = ({ homepage, url }) => homepage || url || null;
 
-export const getModuleInfo = _.memoize(async (moduleName) =>
+export const getModuleInfo = _.memoize((moduleName) =>
   pacote.manifest(moduleName, {
     ...getNpmConfig(),
     fullMetadata: true

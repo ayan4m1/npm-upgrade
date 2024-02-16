@@ -4,11 +4,8 @@ import escapeRegExp from 'lodash/escapeRegExp.js';
 // destructuring required here because inquirer is commonjs
 const { flow, split, compact, partition } = fp;
 
-export function globToRegexp(glob, flags) {
-  const regexp = glob.split(/\*+/).map(escapeRegExp).join('.*?');
-
-  return new RegExp(`^${regexp}$`, flags);
-}
+export const globToRegexp = (glob, flags) =>
+  new RegExp(`^${glob.split(/\*+/).map(escapeRegExp).join('.*?')}$`, flags);
 
 export function makeFilterFunction(filterStr = '') {
   let [excludeFilters, includeFilters] = flow(

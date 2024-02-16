@@ -23,14 +23,12 @@ export function createIgnoredPackagesTable(
   return createSimpleTable(rows, { colAligns: 'lcl' });
 }
 
-export async function askIgnoreFields(defaultVersions) {
-  return {
-    versions: await askUser({
-      message: 'Input version or version range to ignore',
-      default: defaultVersions,
-      validate: (input) =>
-        semver.validRange(input) ? true : 'Input valid semver version range'
-    }),
-    reason: await askUser({ message: 'Ignore reason' })
-  };
-}
+export const askIgnoreFields = async (defaultVersions) => ({
+  versions: await askUser({
+    message: 'Input version or version range to ignore',
+    default: defaultVersions,
+    validate: (input) =>
+      semver.validRange(input) ? true : 'Input valid semver version range'
+  }),
+  reason: await askUser({ message: 'Ignore reason' })
+});
