@@ -1,4 +1,3 @@
-import Bluebird from 'bluebird';
 import _ from 'lodash';
 import got from 'got';
 
@@ -67,13 +66,20 @@ export async function findModuleChangelogUrl(
       );
 
       try {
-        return await Bluebird.any(
-          _.map(possibleChangelogUrls, (url) =>
-            Bluebird.try(() => got(url)).return(url)
-          )
+        const rawResults = await Promise.allSettled(
+          possibleChangelogUrls.map((url) => got(url))
+        )
+          .filter((result) => result.status === 'fulfilled')
+          .map((result) => result.value.json);
+        const rawResponses = await Promise.allSettled(rawResults);
+        const url = rawResponses.find(
+          (responseResult) => responseResult.status === 'fulfilled'
         );
+
+        return url;
       } catch (err) {
-        if (!(err instanceof Bluebird.AggregateError)) throw err;
+        console.error(err);
+        process.exit(1);
       }
     }
 
