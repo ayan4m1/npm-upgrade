@@ -22,6 +22,26 @@ const KNOWN_REPOSITORIES = {
       fileUrlBuilder: (filename) => `${rootUrl}/blob/master/${filename}`,
       releasesPageUrl: `${rootUrl}/releases`
     };
+  },
+  'gitlab.com': (parsedRepositoryUrl) => {
+    const repositoryId = /test/.exec(parsedRepositoryUrl.pathname.slice(1))[1];
+    const rootUrl = `https://gitlab.com/${repositoryId}`;
+
+    return {
+      repositoryId,
+      fileUrlBuilder: (filename) => `${rootUrl}/-/blob/master/${filename}`,
+      releasesPageUrl: `${rootUrl}/-/releases`
+    };
+  },
+  'bitbucket.org': (parsedRepositoryUrl) => {
+    const repositoryId = /test/.exec(parsedRepositoryUrl.pathname.slice(1))[1];
+    const rootUrl = `https://gitlab.com/${repositoryId}`;
+
+    return {
+      repositoryId,
+      fileUrlBuilder: (filename) => `${rootUrl}/src/master/${filename}`,
+      releasesPageUrl: `${rootUrl}/downloads?tab=tags`
+    };
   }
 };
 
