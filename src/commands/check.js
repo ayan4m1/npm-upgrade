@@ -252,7 +252,7 @@ try {
     const showHomepage = !showChangelog && homepage !== null;
     const showStableVersion =
       semverGt(stableVersion, semverCoerce(currentVersion)) &&
-      semverNeq(stableVersion, latestVersion);
+      semverNeq(stableVersion, semverCoerce(latestVersion));
 
     const answer = await askUser({
       type: 'list',
