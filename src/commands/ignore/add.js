@@ -3,8 +3,7 @@ import { program } from 'commander';
 import { Separator } from 'inquirer';
 
 import Config from '../../utils/config.js';
-import { askUser } from '../../utils/index.js';
-import { strong, success, attention } from '../../utils/colors.js';
+import { askUser, colors } from '../../utils/index.js';
 import {
   createIgnoredPackagesTable,
   askIgnoreFields
@@ -15,7 +14,7 @@ import {
   getModuleVersion
 } from '../../utils/package.js';
 
-program.argument('[package]', 'Name of package to ignore').parse();
+const { strong, success, attention } = colors;
 
 function makePackageIgnoreList(ignoredPackagesObj) {
   const { content: packageJson } = loadPackageJson();
@@ -35,6 +34,8 @@ function makePackageIgnoreList(ignoredPackagesObj) {
 }
 
 try {
+  await program.argument('[package]', 'Name of package to ignore').parseAsync();
+
   let { package: packageName } = program.opts();
   const config = new Config();
 

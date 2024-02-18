@@ -4,6 +4,7 @@ import shell from 'shelljs';
 import semverGt from 'semver/functions/gt.js';
 import semverNeq from 'semver/functions/neq.js';
 import semverSatisfies from 'semver/functions/satisfies.js';
+import semverCoerce from 'semver/functions/coerce.js';
 import fp from 'lodash/fp.js';
 import { writeFileSync } from 'fs';
 import { program } from 'commander';
@@ -15,11 +16,10 @@ import upgradeDependencies from 'npm-check-updates/build/src/lib/upgradeDependen
 import getCurrentDependencies from 'npm-check-updates/build/src/lib/getCurrentDependencies.js';
 
 import Config from '../utils/config.js';
+import { askUser, colors } from '../utils/index.js';
 import { askIgnoreFields } from '../utils/ignore.js';
 import { createSimpleTable } from '../utils/table.js';
 import { makeFilterFunction } from '../utils/filter.js';
-import { strong, success, attention } from '../utils/colors.js';
-import { askUser, toSentence } from '../utils/index.js';
 import { fetchRemoteDb, openAndFindChangelog } from '../utils/changelog.js';
 import {
   DEPS_GROUPS,
@@ -32,11 +32,31 @@ import {
 
 program.argument('[filter]', 'Package name filter').parse();
 
-// destructuring required here because libs are commonjs
+// destructuring required here because packages are commonjs
 const { flow, map, partition } = fp;
 const { default: queryVersions } = queryVersionObj;
+const { strong, success, attention } = colors;
 
-function sortModules(modules) {
+const toSentence = (items) =>
+  items.length <= 1
+    ? items[0] || ''
+    : items.slice(0, -1).join(', ') + ' and ' + items[items.length - 1];
+
+const getVersionsForTarget = async (
+  currentVersions,
+  target,
+  showProgress = false
+) =>
+  Object.fromEntries(
+    Object.entries(
+      await queryVersions(currentVersions, {
+        target,
+        json: showProgress
+      })
+    ).map(([packageName, { version }]) => [packageName, version])
+  );
+
+const sortModules = (modules) => {
   const processedModules = new Set();
 
   for (let i = 0, len = modules.length; i < len; i++) {
@@ -71,25 +91,10 @@ function sortModules(modules) {
       modules.splice(originalModuleIndex + 1, 0, module);
     }
   }
-}
+};
 
-async function getVersionsForTarget(
-  currentVersions,
-  target,
-  showProgress = false
-) {
-  return Object.fromEntries(
-    Object.entries(
-      await queryVersions(currentVersions, {
-        target,
-        json: showProgress
-      })
-    ).map(([packageName, { version }]) => [packageName, version])
-  );
-}
-
-function createUpdatedModulesTable(modules) {
-  return createSimpleTable(
+const createUpdatedModulesTable = (modules) =>
+  createSimpleTable(
     _.map(modules, ({ name, from, to }) => [
       strong(name),
       from,
@@ -97,7 +102,6 @@ function createUpdatedModulesTable(modules) {
       colorizeDiff(from, to)
     ])
   );
-}
 
 try {
   const { chalkInit } = await import(
@@ -246,6 +250,9 @@ try {
 
     const showChangelog = changelogUrl !== null;
     const showHomepage = !showChangelog && homepage !== null;
+    const showStableVersion =
+      semverGt(stableVersion, semverCoerce(currentVersion)) &&
+      semverNeq(stableVersion, latestVersion);
 
     const answer = await askUser({
       type: 'list',
@@ -255,11 +262,10 @@ try {
       choices: _.compact([
         { name: 'Yes', value: true },
         { name: 'No', value: false },
-        semverGt(stableVersion, currentVersion) &&
-          semverNeq(stableVersion, latestVersion) && {
-            name: `Use ${colorizeDiff(currentVersion, stableVersion)} instead`,
-            value: 'stable'
-          },
+        showStableVersion && {
+          name: `Use ${colorizeDiff(currentVersion, stableVersion)} instead`,
+          value: 'stable'
+        },
         // Don't show this option if we couldn't find module's changelog url
         showChangelog && { name: 'Show changelog', value: 'changelog' },
         // Show this if we haven't found changelog

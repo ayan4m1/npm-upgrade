@@ -1,9 +1,10 @@
 import semver from 'semver';
 import keys from 'lodash/keys.js';
 
-import { askUser } from '../utils/index.js';
+import { askUser, colors } from '../utils/index.js';
 import { createSimpleTable } from './table.js';
-import { strong, attention } from './colors.js';
+
+const { strong, attention } = colors;
 
 export function createIgnoredPackagesTable(
   ignoredModulesConfig,

@@ -1,13 +1,18 @@
 import open from 'open';
 // eslint-disable-next-line import/no-unresolved
 import { got } from 'got';
+import jsonfile from 'jsonfile';
+import { fileURLToPath } from 'url';
+import { dirname, resolve } from 'path';
 
-import { strong } from './colors.js';
+import { colors } from './index.js';
 import { getModuleInfo } from './package.js';
-import { getRepositoryInfo } from './index.js';
 
-const pkg = await import('../../package.json');
+const { strong } = colors;
+const { readFile } = jsonfile;
 
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const pkg = await readFile(resolve(__dirname, '..', '..', 'package.json'));
 const COMMON_CHANGELOG_FILES = [
   'CHANGELOG.md',
   'History.md',
@@ -15,10 +20,67 @@ const COMMON_CHANGELOG_FILES = [
   'CHANGES.md',
   'CHANGELOG'
 ];
-const CURRENT_REPOSITORY_ID = getRepositoryInfo(
-  pkg.repository.url
-).repositoryId;
-const DEFAULT_REMOTE_CHANGELOGS_DB_URL = `https://raw.githubusercontent.com/${CURRENT_REPOSITORY_ID}/master/db/changelogUrls.json`;
+const KNOWN_REPOSITORIES = {
+  'github.com': (parsedRepositoryUrl) => {
+    const repositoryId = /^(.+?\/.+?)(?:\/|\.git$|$)/.exec(
+      parsedRepositoryUrl.pathname.slice(1)
+    )[1];
+    const rootUrl = `https://github.com/${repositoryId}`;
+
+    return {
+      repositoryId,
+      fileUrlBuilder: (filename) => `${rootUrl}/blob/master/${filename}`,
+      releasesPageUrl: `${rootUrl}/releases`
+    };
+  },
+  'gitlab.com': (parsedRepositoryUrl) => {
+    const repositoryId = /test/.exec(parsedRepositoryUrl.pathname.slice(1))[1];
+    const rootUrl = `https://gitlab.com/${repositoryId}`;
+
+    return {
+      repositoryId,
+      fileUrlBuilder: (filename) => `${rootUrl}/-/blob/master/${filename}`,
+      releasesPageUrl: `${rootUrl}/-/releases`
+    };
+  },
+  'bitbucket.org': (parsedRepositoryUrl) => {
+    const repositoryId = /test/.exec(parsedRepositoryUrl.pathname.slice(1))[1];
+    const rootUrl = `https://gitlab.com/${repositoryId}`;
+
+    return {
+      repositoryId,
+      fileUrlBuilder: (filename) => `${rootUrl}/src/master/${filename}`,
+      releasesPageUrl: `${rootUrl}/downloads?tab=tags`
+    };
+  }
+};
+
+export const getRepositoryInfo = (repositoryUrl) => {
+  try {
+    const parsedUrl = new URL(repositoryUrl);
+    const { hostname } = parsedUrl;
+
+    return KNOWN_REPOSITORIES[hostname]
+      ? KNOWN_REPOSITORIES[hostname](parsedUrl)
+      : null;
+  } catch (error) {
+    console.error(error);
+  }
+
+  return null;
+};
+
+const DEFAULT_REMOTE_CHANGELOGS_DB_URL = `https://raw.githubusercontent.com/${
+  getRepositoryInfo(pkg.repository.url).repositoryId
+}/master/db/changelogUrls.json`;
+
+export const overridesPath = resolve(
+  __dirname,
+  '..',
+  '..',
+  'db',
+  'changelogUrls.json'
+);
 
 export const fetchRemoteDb = async (url = DEFAULT_REMOTE_CHANGELOGS_DB_URL) => {
   try {
@@ -33,10 +95,10 @@ export const fetchRemoteDb = async (url = DEFAULT_REMOTE_CHANGELOGS_DB_URL) => {
   }
 };
 
-export async function findModuleChangelogUrl(
+export const findModuleChangelogUrl = async (
   moduleName,
   remoteChangelogUrlsDbUrl = DEFAULT_REMOTE_CHANGELOGS_DB_URL
-) {
+) => {
   let changelogUrls;
 
   if (remoteChangelogUrlsDbUrl) {
@@ -44,8 +106,7 @@ export async function findModuleChangelogUrl(
   }
 
   // todo: fix this
-  changelogUrls =
-    changelogUrls || (await import('../../db/changelogUrls.json'));
+  changelogUrls = changelogUrls || (await readFile(overridesPath));
 
   if (changelogUrls[moduleName]) {
     return changelogUrls[moduleName];
@@ -103,7 +164,7 @@ export async function findModuleChangelogUrl(
   }
 
   return null;
-}
+};
 
 export const openAndFindChangelog = async (packageName) => {
   console.log(`Trying to find changelog URL for ${strong(packageName)}...`);

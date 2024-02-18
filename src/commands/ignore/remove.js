@@ -2,13 +2,16 @@ import _ from 'lodash';
 import { program } from 'commander';
 
 import Config from '../../utils/config.js';
-import { askUser } from '../../utils/index.js';
-import { success, strong, attention } from '../../utils/colors.js';
+import { askUser, colors } from '../../utils/index.js';
 import { createIgnoredPackagesTable } from '../../utils/ignore.js';
 
-program.argument('[packages...]', 'Names of packages to stop ignoring').parse();
+const { success, strong, attention } = colors;
 
 try {
+  await program
+    .argument('[packages...]', 'Names of packages to stop ignoring')
+    .parseAsync();
+
   let packagesToRemove = program.args;
   let invalidPackages = [];
   const config = new Config();
