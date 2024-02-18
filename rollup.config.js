@@ -1,4 +1,3 @@
-import json from '@rollup/plugin-json';
 import terser from '@rollup/plugin-terser';
 import multiInput from 'rollup-plugin-multi-input';
 // eslint-disable-next-line import/no-unresolved
@@ -10,5 +9,5 @@ export default {
     dir: './lib',
     format: 'esm'
   },
-  plugins: [nodeExternals(), multiInput.default(), json(), terser()]
+  plugins: [nodeExternals(), multiInput.default(), terser()]
 };
