@@ -87,8 +87,6 @@ export const fetchRemoteDb = async (url = DEFAULT_REMOTE_CHANGELOGS_DB_URL) => {
     const response = await got(url);
     const result = await response.json();
 
-    console.dir(result);
-
     return result;
   } catch (err) {
     return null;
@@ -123,8 +121,6 @@ export const findModuleChangelogUrl = async (
     // some common changelog files from there or return URL for "Releases" page
     const { fileUrlBuilder, releasesPageUrl } =
       getRepositoryInfo(repository.url) || {};
-
-    console.dir(fileUrlBuilder);
 
     if (fileUrlBuilder) {
       const possibleChangelogUrls = COMMON_CHANGELOG_FILES.map(fileUrlBuilder);
