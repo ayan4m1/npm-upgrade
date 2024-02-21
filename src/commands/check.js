@@ -251,6 +251,7 @@ try {
     const showChangelog = changelogUrl !== null;
     const showHomepage = !showChangelog && homepage !== null;
     const showStableVersion =
+      stableVersion &&
       semverGt(stableVersion, semverCoerce(currentVersion)) &&
       semverNeq(stableVersion, semverCoerce(latestVersion));
 
