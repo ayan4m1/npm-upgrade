@@ -2,7 +2,7 @@
 
 import { fileURLToPath } from 'url';
 import { program, Command } from 'commander';
-import { dirname, resolve } from 'path';
+import { dirname, join, resolve } from 'path';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const commandDir = resolve(__dirname, 'commands');
@@ -27,16 +27,16 @@ program
   )
   .addCommand(
     new Command('ignore')
-      .executableDir(commandDir)
+      .executableDir(join(commandDir, 'ignore'))
       .description('Manage ignored packages')
       .command('list', 'Show the list of ignored package', {
-        executableFile: 'ignore/list.js'
+        executableFile: 'list.js'
       })
       .command('add [packages...]', 'Add package to ignored list', {
-        executableFile: 'ignore/add.js'
+        executableFile: 'add.js'
       })
       .command('remove [packages...]', 'Remove package from ignored list', {
-        executableFile: 'ignore/remove.js'
+        executableFile: 'remove.js'
       })
   )
   .parse();
