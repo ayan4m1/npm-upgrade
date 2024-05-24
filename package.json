@@ -28,7 +28,8 @@
     "build": "rollup -c",
     "dev": "rollup -c -w",
     "lint": "eslint ./src",
-    "prepare": "husky"
+    "prepare": "husky",
+    "version": "auto-changelog -p -b 10 -l 10 && git add CHANGELOG.md"
   },
   "engines": {
     "node": ">=16"
@@ -53,6 +54,7 @@
   "devDependencies": {
     "@babel/eslint-parser": "^7.24.5",
     "@rollup/plugin-terser": "^0.4.4",
+    "auto-changelog": "^2.4.0",
     "eslint": "^8.57.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-import-resolver-node": "^0.3.9",
