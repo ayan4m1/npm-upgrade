@@ -67,7 +67,7 @@
     "rollup-plugin-node-externals": "^7.1.2"
   },
   "files": [
-    "lib",
+    "src",
     "db"
   ],
   "keywords": [
