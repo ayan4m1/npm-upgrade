@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import { program } from 'commander';
-import { Separator } from 'inquirer';
+import { Separator } from '@inquirer/prompts';
 
 import Config from '../../utils/config.js';
 import { askUser, colors } from '../../utils/index.js';
