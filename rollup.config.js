@@ -9,5 +9,5 @@ export default {
     dir: './lib',
     format: 'esm'
   },
-  plugins: [nodeExternals(), multiInput.default(), terser()]
+  plugins: [nodeExternals(), multiInput(), terser()]
 };
