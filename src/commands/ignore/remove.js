@@ -1,8 +1,9 @@
 import _ from 'lodash';
 import { program } from 'commander';
+import { confirm, checkbox } from '@inquirer/prompts';
 
 import Config from '../../utils/config.js';
-import { askUser, colors } from '../../utils/index.js';
+import { colors } from '../../utils/index.js';
 import { createIgnoredPackagesTable } from '../../utils/ignore.js';
 
 const { success, strong, attention } = colors;
@@ -37,8 +38,7 @@ try {
   }
 
   if (!packagesToRemove.length || invalidPackages.length) {
-    packagesToRemove = await askUser({
-      type: 'checkbox',
+    packagesToRemove = await checkbox({
       message: 'Select ignored modules to reset:',
       choices: ignoredPackages,
       default: packagesToRemove
@@ -55,13 +55,12 @@ try {
     `These ignored modules will be reset:\n\n${createIgnoredPackagesTable(config.ignore, packagesToRemove)}\n`
   );
 
-  const confirm = await askUser({
+  const confirmResult = await confirm({
     message: 'Are you sure?',
-    type: 'confirm',
     default: false
   });
 
-  if (confirm) {
+  if (confirmResult) {
     config.ignore = _.omit(config.ignore, packagesToRemove);
     config.save();
 

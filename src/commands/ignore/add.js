@@ -1,9 +1,9 @@
 import _ from 'lodash';
 import { program } from 'commander';
-import { Separator } from '@inquirer/prompts';
+import { confirm, select, Separator } from '@inquirer/prompts';
 
 import Config from '../../utils/config.js';
-import { askUser, colors } from '../../utils/index.js';
+import { colors } from '../../utils/index.js';
 import {
   createIgnoredPackagesTable,
   askIgnoreFields
@@ -59,8 +59,7 @@ try {
   let ignoreMore;
   do {
     if (!packageName) {
-      packageName = await askUser({
-        type: 'list',
+      packageName = await select({
         message: 'Select package to ignore:',
         choices: makePackageIgnoreList(config.ignore),
         pageSize: 20
@@ -75,9 +74,8 @@ try {
     );
     packageName = null;
 
-    ignoreMore = await askUser({
-      message: 'Do you want to ignore another package?',
-      type: 'confirm'
+    ignoreMore = await confirm({
+      message: 'Do you want to ignore another package?'
     });
   } while (ignoreMore);
 } catch (error) {

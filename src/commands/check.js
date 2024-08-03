@@ -1,14 +1,12 @@
 import _ from 'lodash';
 import open from 'open';
 import shell from 'shelljs';
-import semverGt from 'semver/functions/gt.js';
-import semverNeq from 'semver/functions/neq.js';
-import semverSatisfies from 'semver/functions/satisfies.js';
-import semverCoerce from 'semver/functions/coerce.js';
 import fp from 'lodash/fp.js';
 import { writeFileSync } from 'fs';
 import { program } from 'commander';
 import detectIndent from 'detect-indent';
+import { gt, neq, satisfies, coerce } from 'semver';
+import { confirm, select } from '@inquirer/prompts';
 // eslint-disable-next-line import/default
 import queryVersionObj from 'npm-check-updates/build/src/lib/queryVersions.js';
 import { colorizeDiff } from 'npm-check-updates/build/src/lib/version-util.js';
@@ -16,7 +14,7 @@ import upgradeDependencies from 'npm-check-updates/build/src/lib/upgradeDependen
 import getCurrentDependencies from 'npm-check-updates/build/src/lib/getCurrentDependencies.js';
 
 import Config from '../utils/config.js';
-import { askUser, colors } from '../utils/index.js';
+import { colors } from '../utils/index.js';
 import { askIgnoreFields } from '../utils/ignore.js';
 import { createSimpleTable } from '../utils/table.js';
 import { makeFilterFunction } from '../utils/filter.js';
@@ -192,7 +190,7 @@ try {
     partition(
       (module) =>
         _.has(config.ignore, module.name) &&
-        semverSatisfies(
+        satisfies(
           latestVersions[module.name],
           config.ignore[module.name].versions
         )
@@ -252,11 +250,10 @@ try {
     const showHomepage = !showChangelog && homepage !== null;
     const showStableVersion =
       stableVersion &&
-      semverGt(stableVersion, semverCoerce(currentVersion)) &&
-      semverNeq(stableVersion, semverCoerce(latestVersion));
+      gt(stableVersion, coerce(currentVersion)) &&
+      neq(stableVersion, coerce(latestVersion));
 
-    const answer = await askUser({
-      type: 'list',
+    const answer = await select({
       message: `${changelogUrl === undefined ? 'U' : 'So, u'}pdate "${name}" ${
         opts.global ? 'globally' : 'in package.json'
       } from ${from} to ${colorizeDiff(from, to)}?`,
@@ -361,8 +358,7 @@ try {
   );
 
   if (opts.global) {
-    const shouldUpdateGlobalPackages = await askUser({
-      type: 'confirm',
+    const shouldUpdateGlobalPackages = await confirm({
       message: 'Update global modules?',
       default: true
     });
@@ -378,8 +374,7 @@ try {
     }
   }
 
-  const shouldUpdatePackageFile = await askUser({
-    type: 'confirm',
+  const shouldUpdatePackageFile = await confirm({
     message: 'Update package.json?',
     default: true
   });
