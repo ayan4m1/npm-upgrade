@@ -1,6 +1,4 @@
 import open from 'open';
-// eslint-disable-next-line import/no-unresolved
-import { got } from 'got';
 import jsonfile from 'jsonfile';
 import { fileURLToPath } from 'url';
 import { dirname, resolve } from 'path';
@@ -84,7 +82,7 @@ export const overridesPath = resolve(
 
 export const fetchRemoteDb = async (url = DEFAULT_REMOTE_CHANGELOGS_DB_URL) => {
   try {
-    const response = await got(url);
+    const response = await fetch(url);
     const result = await response.json();
 
     return result;
@@ -129,7 +127,7 @@ export const findModuleChangelogUrl = async (
         const [url] = (
           await Promise.allSettled(
             possibleChangelogUrls.map((url) =>
-              got(url)
+              fetch(url)
                 .json()
                 .then(() => url)
             )
@@ -149,7 +147,7 @@ export const findModuleChangelogUrl = async (
     if (releasesPageUrl) {
       try {
         // Checking `releasesUrl`...
-        await got(releasesPageUrl).text();
+        await (await fetch(releasesPageUrl)).text();
         // `releasesUrl` is fine
         return releasesPageUrl;
       } catch (err) {
