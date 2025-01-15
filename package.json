@@ -20,9 +20,9 @@
     "url": "git+https://github.com/ayan4m1/npm-upgrade.git"
   },
   "type": "module",
-  "module": "./src/index.js",
+  "module": "./lib/index.js",
   "bin": {
-    "npm-upgrade": "src/index.js"
+    "npm-upgrade": "lib/index.js"
   },
   "scripts": {
     "build": "rollup -c",
