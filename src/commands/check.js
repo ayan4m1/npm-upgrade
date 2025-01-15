@@ -7,7 +7,7 @@ import { program } from 'commander';
 import detectIndent from 'detect-indent';
 import { gt, neq, satisfies, coerce } from 'semver';
 import { confirm, select } from '@inquirer/prompts';
-// eslint-disable-next-line import/default
+// eslint-disable-next-line import-x/default
 import queryVersionObj from 'npm-check-updates/build/src/lib/queryVersions.js';
 import { colorizeDiff } from 'npm-check-updates/build/src/lib/version-util.js';
 import upgradeDependencies from 'npm-check-updates/build/src/lib/upgradeDependencies.js';

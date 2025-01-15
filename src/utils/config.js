@@ -53,7 +53,7 @@ export default class Config {
   [read]() {
     try {
       return require(this[path]);
-    } catch (err) {
+    } catch {
       return {};
     }
   }

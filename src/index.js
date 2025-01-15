@@ -1,5 +1,3 @@
-#! /usr/bin/env node
-
 import { fileURLToPath } from 'url';
 import { program, Command } from 'commander';
 import { dirname, join, resolve } from 'path';

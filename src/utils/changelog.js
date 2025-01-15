@@ -86,7 +86,7 @@ export const fetchRemoteDb = async (url = DEFAULT_REMOTE_CHANGELOGS_DB_URL) => {
     const result = await response.json();
 
     return result;
-  } catch (err) {
+  } catch {
     return null;
   }
 };
