@@ -126,11 +126,12 @@ export const findModuleChangelogUrl = async (
       try {
         const [url] = (
           await Promise.allSettled(
-            possibleChangelogUrls.map((url) =>
-              fetch(url)
-                .json()
-                .then(() => url)
-            )
+            possibleChangelogUrls.map(async (url) => {
+              const response = await fetch(url);
+
+              await response.json();
+              return url;
+            })
           )
         )
           .filter((result) => result.status === 'fulfilled')
