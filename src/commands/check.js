@@ -5,11 +5,19 @@ import fp from 'lodash/fp.js';
 import { writeFileSync } from 'fs';
 import { program } from 'commander';
 import detectIndent from 'detect-indent';
-import { gt, neq, satisfies, coerce } from 'semver';
+import {
+  gt,
+  neq,
+  satisfies,
+  coerce,
+  major,
+  minor,
+  patch,
+  minVersion
+} from 'semver';
 import { confirm, select } from '@inquirer/prompts';
 // eslint-disable-next-line import-x/default
 import queryVersionObj from 'npm-check-updates/build/src/lib/queryVersions.js';
-import { colorizeDiff } from 'npm-check-updates/build/src/lib/version-util.js';
 import upgradeDependencies from 'npm-check-updates/build/src/lib/upgradeDependencies.js';
 import getCurrentDependencies from 'npm-check-updates/build/src/lib/getCurrentDependencies.js';
 
@@ -39,6 +47,42 @@ const toSentence = (items) =>
   items.length <= 1
     ? items[0] || ''
     : items.slice(0, -1).join(', ') + ' and ' + items[items.length - 1];
+
+const colorizeDiff = (rawFrom, rawTo) => {
+  const from = minVersion(rawFrom);
+  const to = minVersion(rawTo);
+
+  const rangeModifier = /^([^\d])/.exec(rawTo)?.[1] ?? '';
+  const fields = rawTo.split('.');
+  const [maj, min, pat] = fields
+    .map((field) => /(\d+)/.exec(field)?.[1])
+    .flatMap((field) => (field ? [field] : []));
+
+  // always mark pre-1.0 version bumps as major
+  if (major(from) === major(to) && major(from) === 0) {
+    if (minor(from) !== minor(to)) {
+      return `${rangeModifier}${maj}.${colors.red(`${min}.${pat}`)}`;
+    } else if (patch(from) !== patch(to)) {
+      return `${rangeModifier}${maj}.${min}.${colors.red(pat)}`;
+    } else {
+      return rawTo;
+    }
+  }
+
+  if (major(from) !== major(to)) {
+    // major bumps are red
+    return `${rangeModifier}${colors.red(`${maj}.${min}.${pat}`)}`;
+  } else if (minor(from) !== minor(to)) {
+    // minor bumps are yellow
+    return `${rangeModifier}${maj}.${colors.yellow(`${min}.${pat}`)}`;
+  } else if (patch(from) !== patch(to)) {
+    // patch bumps are green
+    return `${rangeModifier}${maj}.${min}.${colors.green(pat)}`;
+  } else {
+    // the same version is returned unformatted
+    return rawTo;
+  }
+};
 
 const getVersionsForTarget = async (
   currentVersions,
