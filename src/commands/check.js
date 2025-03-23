@@ -137,7 +137,7 @@ const sortModules = (modules) => {
 
 const createUpdatedModulesTable = (modules) =>
   createSimpleTable(
-    _.map(modules, ({ name, from, to }) => [
+    modules.map(({ name, from, to }) => [
       strong(name),
       from,
       '→',
@@ -146,26 +146,18 @@ const createUpdatedModulesTable = (modules) =>
   );
 
 try {
-  const { chalkInit } = await import(
-    'npm-check-updates/build/src/lib/chalk.js'
-  );
-
-  await chalkInit();
-
   const opts = program.opts();
   const [filter] = program.args;
   // Making function that will filter out deps by module name
   const filterModuleName = makeFilterFunction(filter);
 
   // Checking all the deps if all of them are omitted
-  if (_.every(DEPS_GROUPS, ({ name }) => !opts[name])) {
-    _.each(DEPS_GROUPS, ({ name }) => (opts[name] = true));
+  if (DEPS_GROUPS.every(({ name }) => !opts[name])) {
+    DEPS_GROUPS.forEach(({ name }) => (opts[name] = true));
     opts.global = false;
   } else if (opts.global) {
     // Make global flag mutually exclusive with other flags
-    _.each(DEPS_GROUPS, ({ name }) => {
-      opts[name] = false;
-    });
+    DEPS_GROUPS.forEach(({ name }) => (opts[name] = false));
     opts.global = true;
   }
 
@@ -179,11 +171,11 @@ try {
   // Fetching remote changelogs db in background
   fetchRemoteDb();
 
-  const depsGroupsToCheck = _.filter(DEPS_GROUPS, ({ name }) => !!opts[name]);
+  const depsGroupsToCheck = DEPS_GROUPS.filter(({ name }) => !!opts[name]);
   const depsGroupsToCheckStr =
     depsGroupsToCheck.length === DEPS_GROUPS.length
       ? ''
-      : `${toSentence(_.map(depsGroupsToCheck, ({ name }) => strong(name)))} `;
+      : `${toSentence(depsGroupsToCheck.map(({ name }) => strong(name)))} `;
   const filteredWith = filter ? `filtered with ${strong(filter)} ` : '';
 
   console.log(
@@ -211,7 +203,7 @@ try {
   );
 
   // Filtering modules that have to be updated
-  upgradedVersions = _.pickBy(upgradedVersions, (newVersion, moduleName) =>
+  upgradedVersions = _.pickBy(upgradedVersions, (_, moduleName) =>
     filterModuleName(moduleName)
   );
 
@@ -255,7 +247,7 @@ try {
   }
 
   if (!_.isEmpty(ignoredModules)) {
-    const rows = _.map(ignoredModules, ({ name, from, to }) => [
+    const rows = ignoredModules.map(({ name, from, to }) => [
       strong(name),
       from,
       '→',
