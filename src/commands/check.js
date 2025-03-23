@@ -58,26 +58,19 @@ const colorizeDiff = (rawFrom, rawTo) => {
     .map((field) => /(\d+)/.exec(field)?.[1])
     .flatMap((field) => (field ? [field] : []));
 
-  // always mark pre-1.0 version bumps as major
-  if (major(from) === major(to) && major(from) === 0) {
-    if (minor(from) !== minor(to)) {
-      return `${rangeModifier}${maj}.${colors.red(`${min}.${pat}`)}`;
-    } else if (patch(from) !== patch(to)) {
-      return `${rangeModifier}${maj}.${min}.${colors.red(pat)}`;
-    } else {
-      return rawTo;
-    }
-  }
-
   if (major(from) !== major(to)) {
     // major bumps are red
     return `${rangeModifier}${colors.red(`${maj}.${min}.${pat}`)}`;
   } else if (minor(from) !== minor(to)) {
-    // minor bumps are yellow
-    return `${rangeModifier}${maj}.${colors.yellow(`${min}.${pat}`)}`;
+    // minor bumps are yellow (except minor 0.x bumps)
+    const color = major(from) === 0 ? colors.red : colors.yellow;
+
+    return `${rangeModifier}${maj}.${color(`${min}.${pat}`)}`;
   } else if (patch(from) !== patch(to)) {
-    // patch bumps are green
-    return `${rangeModifier}${maj}.${min}.${colors.green(pat)}`;
+    // patch bumps are green (except patch 0.x bumps)
+    const color = major(from) === 0 ? colors.red : colors.green;
+
+    return `${rangeModifier}${maj}.${min}.${color(pat)}`;
   } else {
     // the same version is returned unformatted
     return rawTo;
