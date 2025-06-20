@@ -21,7 +21,9 @@
   },
   "type": "module",
   "module": "./lib/index.js",
-  "bin": "lib/index.js",
+  "bin": {
+    "npm-upgrade": "lib/index.js"
+  },
   "scripts": {
     "build": "rollup -c",
     "dev": "rollup -c -w",
