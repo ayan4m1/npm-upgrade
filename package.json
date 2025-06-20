@@ -36,36 +36,38 @@
   },
   "preferGlobal": true,
   "dependencies": {
-    "@inquirer/prompts": "^7.4.0",
+    "@inquirer/prompts": "^7.5.3",
     "chalk": "^5.4.1",
     "cli-table": "^0.3.11",
-    "commander": "^13.1.0",
+    "commander": "^14.0.0",
     "detect-indent": "^7.0.1",
     "jsonfile": "^6.1.0",
     "libnpmconfig": "^1.2.1",
     "lodash": "^4.17.21",
     "npm-check-updates": "^16.14.20",
-    "open": "^10.1.0",
+    "open": "^10.1.2",
     "pacote": "21.0.0",
-    "semver": "^7.7.1",
-    "shelljs": "^0.9.2"
+    "semver": "^7.7.2",
+    "shelljs": "^0.10.0"
   },
   "devDependencies": {
     "@ayan4m1/rollup-plugin-multi-input": "^2.1.2",
-    "@babel/eslint-parser": "^7.26.10",
+    "@babel/core": "^7.27.4",
+    "@babel/eslint-parser": "^7.27.5",
     "@rollup/plugin-terser": "^0.4.4",
     "auto-changelog": "^2.5.0",
-    "eslint": "^9.23.0",
-    "eslint-config-prettier": "^10.1.1",
+    "eslint": "^9.29.0",
+    "eslint-config-prettier": "^10.1.5",
     "eslint-import-resolver-node": "^0.3.9",
-    "eslint-plugin-import-x": "~4.9.1",
-    "eslint-plugin-prettier": "^5.2.3",
-    "globals": "16.0.0",
+    "eslint-plugin-import-x": "~4.15.2",
+    "eslint-plugin-prettier": "^5.5.0",
+    "globals": "16.2.0",
     "husky": "^9.1.7",
-    "lint-staged": "^15.5.0",
-    "rollup": "^4.36.0",
+    "lint-staged": "^16.1.2",
+    "prettier": "^3.5.3",
+    "rollup": "^4.44.0",
     "rollup-plugin-multi-input": "^1.5.0",
-    "rollup-plugin-node-externals": "^8.0.0",
+    "rollup-plugin-node-externals": "^8.0.1",
     "rollup-plugin-shebang-bin": "^0.1.0"
   },
   "files": [
@@ -82,5 +84,6 @@
     "automatic",
     "changelog",
     "ignore"
-  ]
+  ],
+  "packageManager": "yarn@4.9.2"
 }
