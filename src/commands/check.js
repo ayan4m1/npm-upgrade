@@ -60,17 +60,17 @@ const colorizeDiff = (rawFrom, rawTo) => {
 
   if (major(from) !== major(to)) {
     // major bumps are red
-    return `${rangeModifier}${colors.red(`${maj}.${min}.${pat}`)}`;
+    return `${rangeModifier}${colors.red(`${maj}.${min ?? 'x'}.${pat ?? 'x'}`)}`;
   } else if (minor(from) !== minor(to)) {
     // minor bumps are yellow (except minor 0.x bumps)
     const color = major(from) === 0 ? colors.red : colors.yellow;
 
-    return `${rangeModifier}${maj}.${color(`${min}.${pat}`)}`;
+    return `${rangeModifier}${maj}.${color(`${min ?? 'x'}.${pat ?? 'x'}`)}`;
   } else if (patch(from) !== patch(to)) {
     // patch bumps are green (except patch 0.x bumps)
     const color = major(from) === 0 ? colors.red : colors.green;
 
-    return `${rangeModifier}${maj}.${min}.${color(pat)}`;
+    return `${rangeModifier}${maj}.${min ?? 'x'}.${color(pat ?? 'x')}`;
   } else {
     // the same version is returned unformatted
     return rawTo;
