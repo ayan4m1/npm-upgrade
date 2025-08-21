@@ -29,7 +29,7 @@
     "prepare": "rollup -c"
   },
   "engines": {
-    "node": ">=16"
+    "node": ">=18"
   },
   "preferGlobal": true,
   "dependencies": {

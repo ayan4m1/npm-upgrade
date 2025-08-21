@@ -19,7 +19,7 @@ First, install [Node.js](https://nodejs.org) (at least `v18`).
 Then install this utility as global npm-module:
 
 ```sh
-npm i -g npm-upgrade
+npm i -g @ayan4m1/npm-upgrade
 ```
 
 ## Usage
