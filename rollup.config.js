@@ -1,15 +1,28 @@
 import terser from '@rollup/plugin-terser';
 import shebang from 'rollup-plugin-shebang-bin';
+import autoExternal from 'rollup-plugin-auto-external';
 import multiInput from '@ayan4m1/rollup-plugin-multi-input';
-// eslint-disable-next-line import-x/no-unresolved
-import nodeExternals from 'rollup-plugin-node-externals';
+import typescript from '@rollup/plugin-typescript';
 
 export default {
-  input: './src/**/*.js',
-  output: {
-    dir: './lib',
-    format: 'esm',
-    preserveModules: true
-  },
-  plugins: [nodeExternals(), multiInput(), shebang(), terser()]
+  input: './src/**/*.ts',
+  output: [
+    {
+      dir: './lib/esm',
+      format: 'esm'
+    },
+    {
+      dir: './lib/cjs',
+      format: 'cjs'
+    }
+  ],
+  plugins: [
+    typescript(),
+    autoExternal({
+      builtins: true
+    }),
+    multiInput(),
+    shebang(),
+    terser()
+  ]
 };

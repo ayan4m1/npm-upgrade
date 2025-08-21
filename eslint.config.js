@@ -1,20 +1,18 @@
 import globals from 'globals';
 import eslint from '@eslint/js';
-import babelParser from '@babel/eslint-parser';
+import { config, configs } from 'typescript-eslint';
 import { flatConfigs as importConfigs } from 'eslint-plugin-import-x';
 import eslintPluginPrettier from 'eslint-plugin-prettier/recommended';
 
-export default [
+export default config(
   eslint.configs.recommended,
+  ...configs.recommended,
   importConfigs.recommended,
+  importConfigs.typescript,
   {
     languageOptions: {
-      globals: globals.node,
-      parser: babelParser,
-      parserOptions: {
-        requireConfigFile: false
-      }
+      globals: globals.node
     }
   },
   eslintPluginPrettier
-];
+);

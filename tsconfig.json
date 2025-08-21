@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
-    "module": "esnext",
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
     "baseUrl": "./src"
   },
   "include": ["src/"]

@@ -1,5 +1,6 @@
 import open from 'open';
 import jsonfile from 'jsonfile';
+import { readFileSync } from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname, resolve } from 'path';
 
@@ -10,7 +11,7 @@ const { strong } = colors;
 const { readFile } = jsonfile;
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const pkg = await readFile(resolve(__dirname, '..', '..', 'package.json'));
+const pkg = readFileSync(resolve(__dirname, '..', '..', 'package.json'));
 const COMMON_CHANGELOG_FILES = [
   'CHANGELOG.md',
   'History.md',
@@ -121,7 +122,8 @@ export const findModuleChangelogUrl = async (
       getRepositoryInfo(repository.url) || {};
 
     if (fileUrlBuilder) {
-      const possibleChangelogUrls = COMMON_CHANGELOG_FILES.map(fileUrlBuilder);
+      const possibleChangelogUrls: string[] =
+        COMMON_CHANGELOG_FILES.map(fileUrlBuilder);
 
       try {
         const [url] = (

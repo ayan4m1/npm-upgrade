@@ -13,6 +13,14 @@ const read = Symbol('read');
 const getData = Symbol('getData');
 
 export default class Config {
+  ignore: Record<
+    string,
+    {
+      versions: string;
+      reason: string;
+    }
+  >;
+
   constructor(opts) {
     const { projectRoot } = opts || {};
     this[path] = resolve(projectRoot || process.cwd(), PROJECT_CONFIG_FILENAME);
@@ -50,9 +58,9 @@ export default class Config {
     }
   }
 
-  [read]() {
+  async [read]() {
     try {
-      return require(this[path]);
+      return await import(this[path]);
     } catch {
       return {};
     }
