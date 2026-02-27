@@ -21,7 +21,8 @@ export default class Config {
     }
   >;
 
-  constructor(opts) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  constructor(opts?: any) {
     const { projectRoot } = opts || {};
     this[path] = resolve(projectRoot || process.cwd(), PROJECT_CONFIG_FILENAME);
     this[storedData] = this[read]();

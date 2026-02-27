@@ -16,7 +16,6 @@ import {
   minVersion
 } from 'semver';
 import { confirm, select } from '@inquirer/prompts';
-// eslint-disable-next-line import-x/default
 import queryVersionObj from 'npm-check-updates/build/src/lib/queryVersions.js';
 import upgradeDependencies from 'npm-check-updates/build/src/lib/upgradeDependencies.js';
 import getCurrentDependencies from 'npm-check-updates/build/src/lib/getCurrentDependencies.js';
@@ -286,7 +285,7 @@ const createUpdatedModulesTable = (modules) =>
         gt(stableVersion, coerce(currentVersion)) &&
         neq(stableVersion, coerce(latestVersion));
 
-      const answer = await select({
+      const answer = await select<string | boolean>({
         message: `${changelogUrl === undefined ? 'U' : 'So, u'}pdate "${name}" ${
           opts.global ? 'globally' : 'in package.json'
         } from ${from} to ${colorizeDiff(from, to)}?`,

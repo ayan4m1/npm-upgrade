@@ -43,6 +43,16 @@ const getNpmConfig = _.memoize(() => {
   return config;
 });
 
+type PackageInfo = {
+  dependencies: Record<
+    string,
+    | {
+        version: string;
+      }
+    | string
+  >;
+};
+
 export function loadGlobalPackages() {
   const res = shell.exec('npm ls -g --depth 0 --json', { silent: true });
   if (res.code !== 0) {
@@ -50,10 +60,12 @@ export function loadGlobalPackages() {
   }
 
   try {
-    const { dependencies } = JSON.parse(res);
+    const { dependencies } = JSON.parse(res) as unknown as PackageInfo;
     const content = { dependencies };
 
-    for (const [pkg, { version }] of Object.entries(dependencies)) {
+    for (const [pkg, { version }] of Object.entries(
+      dependencies
+    ) as unknown as [string, { version: string }][]) {
       content.dependencies[pkg] = version;
     }
 

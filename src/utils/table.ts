@@ -24,9 +24,15 @@ const EMPTY_BORDER_CHARS = {
   middle: ''
 };
 
-export function createSimpleTable(rows = [], opts = {}) {
+type TableOptions = {
+  colAligns?: string[] | string;
+};
+
+export function createSimpleTable(rows = [], opts: TableOptions = {}) {
   if (opts.colAligns) {
-    opts.colAligns = opts.colAligns.split('').map((val) => COL_ALIGNS_MAP[val]);
+    opts.colAligns = (opts.colAligns as string)
+      .split('')
+      .map((val) => COL_ALIGNS_MAP[val]);
   }
 
   const table = new Table({

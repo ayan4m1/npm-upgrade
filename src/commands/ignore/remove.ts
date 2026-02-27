@@ -41,8 +41,7 @@ const { success, strong, attention } = colors;
     if (!packagesToRemove.length || invalidPackages.length) {
       packagesToRemove = await checkbox({
         message: 'Select ignored modules to reset:',
-        choices: ignoredPackages,
-        default: packagesToRemove
+        choices: ignoredPackages
       });
       console.log();
     }

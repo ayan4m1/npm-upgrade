@@ -10,8 +10,19 @@ import { getModuleInfo } from './package.js';
 const { strong } = colors;
 const { readFile } = jsonfile;
 
+type PackageInfo = {
+  repository?: {
+    url?: string;
+  };
+  bugs?: {
+    url?: string;
+  };
+};
+
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const pkg = readFileSync(resolve(__dirname, '..', '..', 'package.json'));
+const pkg = readFileSync(
+  resolve(__dirname, '..', '..', 'package.json')
+) as unknown as PackageInfo;
 const COMMON_CHANGELOG_FILES = [
   'CHANGELOG.md',
   'History.md',
